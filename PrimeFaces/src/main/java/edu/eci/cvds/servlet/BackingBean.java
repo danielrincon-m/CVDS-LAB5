@@ -1,45 +1,48 @@
 package edu.eci.cvds.servlet;
 
+
 import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
-import java.util.List;
+import java.util.ArrayList;
 
 @ManagedBean(name="calculadoraBean")
 @ApplicationScoped
 
 public class BackingBean {
-    private int targetNumber;
-    private int attempts;
-    private int prize;
-    private String state;
+    private final ArrayList<Double> numbers = new ArrayList<>();
+    private double mean;
+    private double standardDeviation;
+    private double variance;
+    private double mode;
 
-    public double CalculateMean(List<Integer> numbers) {
+    public void calculateMean() {
         double sum = 0;
-        for (Integer number : numbers) {
+        for (Double number : numbers) {
             sum += number;
         }
-        return sum / numbers.size();
+        mean = sum / numbers.size();
     }
 
-    public double CalculateStandardDeviation(List<Integer> numbers) {
-        return Math.sqrt(CalculateVariance(numbers));
+    public void calculateStandardDeviation() {
+        calculateVariance();
+        standardDeviation = Math.sqrt(variance);
     }
 
-    public double CalculateVariance(List<Integer> numbers) {
+    public void calculateVariance() {
         double variance = 0;
-        double mean = CalculateMean(numbers);
-        for (Integer number : numbers) {
+        calculateMean();
+        for (Double number : numbers) {
             variance += Math.pow(number - mean, 2);
         }
-        return  variance / numbers.size();
+        this.variance =  variance / numbers.size();
     }
 
-    public double CalculateMode(List<Integer> numbers) {
-        int maxValue = 0, maxCount = 0;
+    public void calculateMode() {
+        double maxValue = 0, maxCount = 0;
 
         for (int i = 0; i < numbers.size(); ++i) {
             int count = 0;
-            for (Integer number : numbers) {
+            for (Double number : numbers) {
                 if (number.equals(numbers.get(i))) ++count;
             }
             if (count > maxCount) {
@@ -48,38 +51,44 @@ public class BackingBean {
             }
         }
 
-        return maxValue;
+        mode = maxValue;
     }
 
     public void restart() {
-
+        numbers.clear();
+        calculateData();
     }
 
-    public int getTargetNumber() {
-        return targetNumber;
+    public void addNumber(double number) {
+        numbers.add(number);
+        System.out.println(numbers.toString());
+        calculateData();
     }
 
-    public int getAttempts() {
-        return attempts;
+    private void calculateData() {
+        calculateMean();
+        calculateMode();
+        calculateStandardDeviation();
+        calculateVariance();
     }
 
-    public void setAttempts(int attempts) {
-        this.attempts = attempts;
+    public int getNumberQuantity() {
+        return numbers.size();
     }
 
-    public int getPrize() {
-        return prize;
+    public double getStandardDeviation() {
+        return standardDeviation;
     }
 
-    public void setPrize(int prize) {
-        this.prize = prize;
+    public double getMode() {
+        return mode;
     }
 
-    public String getState() {
-        return state;
+    public double getMean() {
+        return mean;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public double getVariance() {
+        return variance;
     }
 }
